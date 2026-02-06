@@ -1,0 +1,18 @@
+{
+  "maintainer_name": "Jamie",
+  "maintainer_email": "jamie.k.eckstein@gmail.com",
+  "maintainer_github_username": "xkstein",
+  "contributors": "Jamie, Claude AI",
+  "license_holders": "No one",
+  "project_name": "tlb6700",
+  "github_username_or_orgname": "xkstein",
+  "github_repo_name": "tlb6700",
+  "conda_pypi_package_dist_name": "tlb6700",
+  "package_dir_name": "tlb6700",
+  "project_short_description": "Unofficial Newport TLB6700 Python Driver",
+  "project_keywords": "tunable laser driver",
+  "minimum_supported_python_version": "3.7",
+  "maximum_supported_python_version": "3.13",
+  "project_needs_c_code_compiled": "No",
+  "project_has_gui_tests": "No"
+}
