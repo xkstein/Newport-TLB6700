@@ -23,7 +23,11 @@ For more information about the newport-tlb6700 library, please consult our `onli
 Installation
 ------------
 
-To install using ``pip`` into your ``newport-tlb6700_env`` environment, type ::
+You need to install the Newport Tunable `laser drivers`_ for this package to work
+
+.. _laser drivers: https://www.newport.com/f/velocity-wide-&-fine-tunable-lasers
+
+To install using ``pip`` into your environment, type ::
 
         pip install newport-tlb6700
 

@@ -441,16 +441,3 @@ class TLB6700:
         """Get laser head calibration date."""
         return self._query("SYSTem:LASer:CALDATE?")
 
-
-def list_devices(dll_path=None):
-    """Convenience function to list all connected TLB-6700 devices.
-
-    Args:
-        dll_path: Optional path to UsbDll.dll
-
-    Returns:
-        List of tuples (device_id, description)
-    """
-    usb = NewportUSB(dll_path)
-    usb.init_system()
-    return usb.list_devices()
