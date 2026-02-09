@@ -9,14 +9,6 @@
 | Software version |release|
 | Last updated |today|.
 
-===============
-Getting started
-===============
-
-Welcome to the ``newport-tlb6700`` documentation!
-
-To get started, please visit the :ref:`Getting started <getting-started>` page.
-
 =======
 Authors
 =======
@@ -43,9 +35,7 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
-   getting-started
-   Package API <api/newport_tlb6700>
-   release
+   Package API <api/newport-tlb6700>
    license
 
 =======
