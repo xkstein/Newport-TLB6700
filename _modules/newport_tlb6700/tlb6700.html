@@ -1,0 +1,688 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>newport_tlb6700.tlb6700 &mdash; newport-tlb6700 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f539c95a"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=cca77546"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            newport-tlb6700
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/newport-tlb6700.html">Package API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">newport-tlb6700</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">newport_tlb6700.tlb6700</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for newport_tlb6700.tlb6700</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Python library for controlling the TLB-6700 Tunable Laser Controller</span>
+<span class="sd">via Newport USB DLL.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<div class="viewcode-block" id="NewportUSB">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.NewportUSB">[docs]</a>
+<span class="k">class</span> <span class="nc">NewportUSB</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Singleton wrapper for Newport USB DLL.</span>
+
+<span class="sd">    This class manages the USB driver initialization and device discovery.</span>
+<span class="sd">    Use list_devices() to find connected devices, then create TLB6700 instances.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dll_path: Optional path to UsbDll.dll. If not provided, searches standard Windows paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_instance</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_initialized</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">_dll_path</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dll_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_dll_path</span> <span class="o">=</span> <span class="n">dll_path</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dll_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">dll_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dll_path</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dll_path</span> <span class="k">else</span> <span class="s2">&quot;UsbDll.dll&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dll</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WinDLL</span><span class="p">(</span><span class="n">dll_name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Could not load UsbDll.dll. Ensure Newport USB Driver is installed.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_setup_functions</span><span class="p">()</span>
+            <span class="n">NewportUSB</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_setup_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_init_system</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_init_system</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_uninit_system</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_uninit_system</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_get_device_info</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_get_device_info</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_send_ascii</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_send_ascii</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_get_ascii</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_get_ascii</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span>
+
+<div class="viewcode-block" id="NewportUSB.init_system">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.NewportUSB.init_system">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize USB system and open all devices.&quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_init_system</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to initialize USB system: error code </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NewportUSB.close_system">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.NewportUSB.close_system">[docs]</a>
+    <span class="k">def</span> <span class="nf">close_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close all USB devices.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_uninit_system</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="NewportUSB.list_devices">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.NewportUSB.list_devices">[docs]</a>
+    <span class="k">def</span> <span class="nf">list_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List all connected devices.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of tuples (device_id, description) for each connected device</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">create_string_buffer</span><span class="p">(</span><span class="mi">4096</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_get_device_info</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to get device info: error code </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">device_info</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+        <span class="n">devices</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">device_str</span> <span class="ow">in</span> <span class="n">device_info</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">device_str</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">device_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">device_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">description</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">device_id</span><span class="p">,</span> <span class="n">description</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">devices</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TLB6700">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700">[docs]</a>
+<span class="k">class</span> <span class="nc">TLB6700</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface for TLB-6700 Tunable Laser Controller.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        device_id: Device ID from NewportUSB.list_devices()</span>
+<span class="sd">        usb: Optional NewportUSB instance (creates one if not provided)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_id</span><span class="p">,</span> <span class="n">usb</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device_id</span> <span class="o">=</span> <span class="n">device_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usb</span> <span class="o">=</span> <span class="n">usb</span> <span class="k">if</span> <span class="n">usb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">NewportUSB</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_send_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send command and return response.&quot;&quot;&quot;</span>
+        <span class="n">cmd_bytes</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_send_ascii</span><span class="p">(</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_id</span><span class="p">),</span>
+            <span class="n">cmd_bytes</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cmd_bytes</span><span class="p">)),</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to send command: error code </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+        <span class="n">buffer</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">create_string_buffer</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+        <span class="n">bytes_read</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">()</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">usb</span><span class="o">.</span><span class="n">dll</span><span class="o">.</span><span class="n">newp_usb_get_ascii</span><span class="p">(</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_long</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_id</span><span class="p">),</span>
+            <span class="n">buffer</span><span class="p">,</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">(</span><span class="mi">1024</span><span class="p">),</span>
+            <span class="n">ctypes</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">bytes_read</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read response: error code </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send query command and return response.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ERROR&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="k">def</span> <span class="nf">_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send set command and verify OK response.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span> <span class="o">!=</span> <span class="s2">&quot;OK&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command failed: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TLB6700.get_identification">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_identification">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_identification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get instrument identification string.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;*IDN?&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.recall_settings">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.recall_settings">[docs]</a>
+    <span class="k">def</span> <span class="nf">recall_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">bin</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recall saved settings from memory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bin: 0 for factory defaults, 1-5 for saved settings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">bin</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">bin</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bin must be 0-5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*RCL </span><span class="si">{</span><span class="nb">bin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.reset">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform soft reset of the controller.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="s2">&quot;*RST&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.save_settings">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.save_settings">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">bin</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save current settings to memory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bin: Memory location 2-5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">bin</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">bin</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bin must be 2-5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*SAV </span><span class="si">{</span><span class="nb">bin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_operation_complete">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_operation_complete">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_operation_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if long-term operation is complete.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if no operation in progress, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;*OPC?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_status_byte">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_status_byte">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_status_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get controller status byte.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            0 if error buffer empty, 128 if errors present</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;*STB?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_beep">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_beep">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_beep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Control the beeper.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state: 0/False for off, 1/True for on, 2 for test beep</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;State must be 0, 1, or 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;BEEP </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_beep">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_beep">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_beep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get beeper enable status.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;BEEP?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_brightness">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_brightness">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_brightness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">brightness</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set display brightness.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            brightness: Percentage from 1 to 100</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">brightness</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">brightness</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Brightness must be 1-100&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;BRIGHT </span><span class="si">{</span><span class="n">brightness</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_brightness">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_brightness">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_brightness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get display brightness percentage.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;BRIGHT?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_error_string">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_error_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_error_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get next error from error buffer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;ERRSTR?&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_lockout">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_lockout">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_lockout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set front panel lockout mode.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mode: 0 = all enabled, 1 = all disabled, 2 = dial only disabled</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mode must be 0, 1, or 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LOCKOUT </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_lockout">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_lockout">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lockout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get front panel lockout state.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;LOCKOUT?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_on_delay">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_on_delay">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_on_delay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">milliseconds</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set laser turn-on delay.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            milliseconds: Delay time between 3000 and 60000 ms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">milliseconds</span> <span class="o">&lt;</span> <span class="mi">3000</span> <span class="ow">or</span> <span class="n">milliseconds</span> <span class="o">&gt;</span> <span class="mi">60000</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Delay must be 3000-60000 ms&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ONDELAY </span><span class="si">{</span><span class="n">milliseconds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_on_delay">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_on_delay">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_on_delay</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get laser turn-on delay in milliseconds.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;ONDELAY?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_output">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_output">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Turn laser output on or off.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state: True/&#39;ON&#39;/1 for on, False/&#39;OFF&#39;/0 for off</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="n">state</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="n">state</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ON&quot;</span><span class="p">,</span> <span class="s2">&quot;OFF&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;State must be ON or OFF&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OUTPut:STATe </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_output">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_output">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get laser output state.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;OUTPut:STATe?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_diode_current">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_diode_current">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_diode_current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get actual diode current in mA.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SENSe:CURRent:DIODe&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_diode_temperature">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_diode_temperature">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_diode_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get actual diode temperature in °C.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SENSe:TEMPerature:DIODe&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_cavity_temperature">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_cavity_temperature">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cavity_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get actual cavity temperature in °C.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SENSe:TEMPerature:CAVity&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_auxiliary_voltage">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_auxiliary_voltage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_auxiliary_voltage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get auxiliary detector input voltage in V.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SENSe:VOLTage:AUXiliary&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_diode_current">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_diode_current">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_diode_current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set diode current setpoint.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            current: Current in mA or &#39;MAX&#39; for maximum rating</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">current</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;String value must be &#39;MAX&#39;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SOURce:CURRent:DIODe </span><span class="si">{</span><span class="n">current</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_diode_current_setpoint">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_diode_current_setpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_diode_current_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get diode current setpoint in mA.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SOURce:CURRent:DIODe?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_diode_power_setpoint">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_diode_power_setpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_diode_power_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">power</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set diode power setpoint.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            power: Power in mW or &#39;MAX&#39; for maximum rating</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">power</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;String value must be &#39;MAX&#39;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SOURCE:POWER:DIODE </span><span class="si">{</span><span class="n">power</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_diode_power_setpoint">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_diode_power_setpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_diode_power_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get diode power setpoint in mW.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SOURCE:POWER:DIODE?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_power">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_power">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_power</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get detected diode power.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SENSE:POWER:DIODE?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_wavelength_setpoint">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_wavelength_setpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_wavelength_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set wavelength setpoint in nm.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SOURCE:WAVELENGTH </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">wavelength</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_wavelength_setpoint">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_wavelength_setpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_wavelength_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get wavelength setpoint in nm.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SOURCE:WAVELENGTH?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_wavelength">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_wavelength">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get wavelength in nm.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SENSE:WAVELENGTH?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_lambda_track">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_lambda_track">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_lambda_track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">track</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set lambda track state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            track: boolean True if turn on lambda track</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OUTPUT:TRACK </span><span class="si">{</span><span class="mi">1</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">track</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">0</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_lambda_track">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_lambda_track">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lambda_track</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get if lambda track is on.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;OUTPUT:TRACK?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_piezo_voltage">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_piezo_voltage">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_piezo_voltage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set piezo voltage setpoint.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            voltage: Voltage as percentage (0-100) or &#39;MAX&#39; for 100%</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">voltage</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">voltage</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;String value must be &#39;MAX&#39;&quot;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">voltage</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">voltage</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Voltage must be 0-100%&quot;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">voltage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SOURce:VOLTage:PIEZo </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_piezo_voltage_setpoint">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_piezo_voltage_setpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_piezo_voltage_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get piezo voltage setpoint as percentage.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SOURce:VOLTage:PIEZo?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_diode_temperature_setpoint">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_diode_temperature_setpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_diode_temperature_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get diode temperature setpoint in °C.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SOURce:TEMPerature:DIODe?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_cavity_temperature_setpoint">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_cavity_temperature_setpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cavity_temperature_setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get cavity temperature setpoint in °C.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SOURce:TEMPerature:CAVity?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_enable_time">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_enable_time">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_enable_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get total laser enable time in minutes.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SYSTem:ENTIME?&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.set_control_mode">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.set_control_mode">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_control_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set controller operation mode.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mode: &#39;REM&#39; for remote, &#39;LOC&#39; for local</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;REM&quot;</span><span class="p">,</span> <span class="s2">&quot;LOC&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mode must be &#39;REM&#39; or &#39;LOC&#39;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SYSTem:MCONtrol </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_control_mode">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_control_mode">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_control_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get controller operation mode (&#39;REM&#39; or &#39;LOC&#39;).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SYSTem:MCONtrol?&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_laser_model">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_laser_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_laser_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get laser head model number.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SYSTem:LASer:MODEL?&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_laser_serial">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_laser_serial">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_laser_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get laser head serial number.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SYSTem:LASer:SN?&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_laser_revision">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_laser_revision">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_laser_revision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get laser head revision number.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SYSTem:LASer:REV?&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TLB6700.get_laser_calibration_date">
+<a class="viewcode-back" href="../../api/newport-tlb6700.html#newport_tlb6700.tlb6700.TLB6700.get_laser_calibration_date">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_laser_calibration_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get laser head calibration date.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;SYSTem:LASer:CALDATE?&quot;</span><span class="p">)</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, no one.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
