@@ -6,10 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "newport-tlb6700"
 dynamic=['version', 'dependencies']
 authors = [
-  { name="Jamie", email="jamie.k.eckstein@gmail.com" },
+  {name='Jamie Eckstein', email='jamie.k.eckstein@gmail.com'},
 ]
 maintainers = [
-  { name="Jamie", email="jamie.k.eckstein@gmail.com" },
+  {name='Jamie Eckstein', email='jamie.k.eckstein@gmail.com'},
 ]
 description = "Unofficial Newport Velocity TLB6700 tunable laser python driver"
 keywords = ['tunable laser driver']

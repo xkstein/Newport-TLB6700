@@ -1,7 +1,9 @@
 {
-  "maintainer_name": "Jamie",
-  "maintainer_email": "jamie.k.eckstein@gmail.com",
-  "maintainer_github_username": "xkstein",
+  "author_names": "Jamie Eckstein",
+  "author_emails": "jamie.k.eckstein@gmail.com",
+  "maintainer_names": "Jamie Eckstein",
+  "maintainer_emails": "jamie.k.eckstein@gmail.com",
+  "maintainer_github_usernames": "xkstein",
   "contributors": "Jamie, Claude AI",
   "license_holders": "no one",
   "project_name": "newport-tlb6700",
