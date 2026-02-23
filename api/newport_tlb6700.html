@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; newport-tlb6700 0.0.1 documentation</title>
+  <title>newport-tlb6700 package &mdash; newport-tlb6700 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -21,7 +21,9 @@
       <script src="../_static/copybutton.js?v=cca77546"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Release notes" href="../release.html" />
+    <link rel="prev" title="newport-tlb6700 documentation" href="../index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,8 +45,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/newport-tlb6700.html">Package API</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Package API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module">newport_tlb6700.example_submodule module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 
@@ -62,9 +72,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="breadcrumb-item active">newport-tlb6700 package</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/xkstein/newport-tlb6700/blob/main/docs/source/snippets/example-table.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/xkstein/newport-tlb6700/blob/main/docs/source/api/newport_tlb6700.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -72,54 +82,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <table class="docutils align-default" id="id1">
-<caption><span class="caption-text">5 levels of reusing/sharing code</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
-<colgroup>
-<col style="width: 5.0%" />
-<col style="width: 15.0%" />
-<col style="width: 40.0%" />
-<col style="width: 40.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Level</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Scope</p></th>
-<th class="head"><p>How to setup</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>1</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">function</span></code></p></td>
-<td><p>Reuse code in the single file.</p></td>
-<td><p>See Level 1 tutorial</p></td>
-</tr>
-<tr class="row-odd"><td><p>2</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">module</span></code></p></td>
-<td><p>Reuse code across files.</p></td>
-<td><p>See Level 2 tutorial</p></td>
-</tr>
-<tr class="row-even"><td><p>3</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">workspace</span></code></p></td>
-<td><p>Reuse code across project folders.</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">package</span> <span class="pre">create</span> <span class="pre">workspace</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>4</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">system</span></code></p></td>
-<td><p>Reuse code across any files in the computer.</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">package</span> <span class="pre">create</span> <span class="pre">system</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p>5</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">public</span></code></p></td>
-<td><p>Share code as publicly installable package.</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">package</span> <span class="pre">create</span> <span class="pre">public</span></code></p></td>
-</tr>
-</tbody>
-</table>
+  <section id="title">
+<h1>newport-tlb6700 package<a class="headerlink" href="#title" title="Link to this heading"></a></h1>
+<p id="module-newport_tlb6700">Unofficial Newport Velocity TLB6700 tunable laser python driver</p>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module">
+<h2>newport_tlb6700.example_submodule module<a class="headerlink" href="#module" title="Link to this heading"></a></h2>
+</section>
+</section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="newport-tlb6700 documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../release.html" class="btn btn-neutral float-right" title="Release notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

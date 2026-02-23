@@ -21,9 +21,7 @@
       <script src="../_static/copybutton.js?v=cca77546"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="License" href="../license.html" />
-    <link rel="prev" title="newport-tlb6700 documentation" href="../index.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,19 +43,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Package API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#locating-the-driver">Locating the Driver</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-newport_tlb6700.tlb6700">newport-tlb6700.tlb6700 module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#newport_tlb6700.tlb6700.NewportUSB"><code class="docutils literal notranslate"><span class="pre">NewportUSB</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#newport_tlb6700.tlb6700.TLB6700"><code class="docutils literal notranslate"><span class="pre">TLB6700</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="newport_tlb6700.html">Package API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 </ul>
 
@@ -87,39 +75,7 @@
              
   <section id="module-newport_tlb6700">
 <span id="newport-tlb6700-package"></span><h1>newport-tlb6700 package<a class="headerlink" href="#module-newport_tlb6700" title="Link to this heading"></a></h1>
-<p>We talk to the Newport Velocity TLB6700 using a driver (generally located at
-C:Program FilesNewportUSB DriverBinUsbDll.dll) instead of a standard
-serial library. This driver <strong>needs a device number in order to communicate
-with a device</strong>. The device numbers of the connected devices can be extracted
-using this:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">newport_tlb6700</span> <span class="kn">import</span> <span class="n">NewportUSB</span><span class="p">,</span> <span class="n">TLB6700</span><span class="p">,</span> <span class="n">list_devices</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">usb</span> <span class="o">=</span> <span class="n">NewportUSB</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">usb</span><span class="o">.</span><span class="n">init_system</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">devices</span> <span class="o">=</span> <span class="n">usb</span><span class="o">.</span><span class="n">list_devices</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">device_id</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  Device </span><span class="si">{</span><span class="n">device_id</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Then, the device can be communicated with:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">laser</span> <span class="o">=</span> <span class="n">TLB6700</span><span class="p">(</span><span class="o">&lt;</span><span class="n">desired</span> <span class="n">device</span> <span class="nb">id</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">usb</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">laser</span><span class="o">.</span><span class="n">get_identification</span><span class="p">())</span>
-</pre></div>
-</div>
-<section id="locating-the-driver">
-<h2>Locating the Driver<a class="headerlink" href="#locating-the-driver" title="Link to this heading"></a></h2>
-<p>If the code above runs and shows devices, then everything works! Windows will
-check for <cite>UsbDll.dll</cite> in several places (current directory, PATH, etc)</p>
-<dl class="simple">
-<dt>If it does not find the driver automatically please:</dt><dd><ol class="arabic simple">
-<li><p>Confirm that you have downloaded the Newport Velocity <a class="reference external" href="https://www.newport.com/f/velocity-wide-&amp;-fine-tunable-lasers">laser driver</a>.</p></li>
-<li><p>Try passing the path of the driver explicitly to NewportUSB</p></li>
-</ol>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">usb</span> <span class="o">=</span> <span class="n">NewportUSB</span><span class="p">(</span><span class="s1">&#39;C:\Program Files\Newport\USB Driver\Bin\UsbDll.dll&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
+<p>Unofficial Newport Velocity TLB6700 tunable laser python driver</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 <section id="module-newport_tlb6700.tlb6700">
@@ -507,10 +463,7 @@ Use list_devices() to find connected devices, then create TLB6700 instances.</p>
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="newport-tlb6700 documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../license.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

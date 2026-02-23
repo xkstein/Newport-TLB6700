@@ -22,7 +22,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="newport-tlb6700 package" href="api/newport-tlb6700.html" /> 
+    <link rel="next" title="newport-tlb6700 package" href="api/newport_tlb6700.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,7 +45,8 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/newport-tlb6700.html">Package API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/newport_tlb6700.html">Package API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release.html">Release notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
 
@@ -76,15 +77,40 @@
   <section id="title">
 <h1>newport-tlb6700 documentation<a class="headerlink" href="#title" title="Link to this heading"></a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">newport-tlb6700</span></code> - Unofficial Newport Velocity TLB6700 tunable laser python driver</p>
+<div class="line-block">
+<div class="line">Software version 0.0.1</div>
+<div class="line">Last updated February 23, 2026.</div>
+</div>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>Welcome to the <code class="docutils literal notranslate"><span class="pre">newport-tlb6700</span></code> documentation!</p>
+<p>To get started, please visit the <span class="xref std std-ref">Getting started</span> page.</p>
+</section>
+<section id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">newport-tlb6700</span></code> is developed by Jamie, Claude AI. This project is maintained by Jamie Eckstein. For a detailed list of contributors see
+<a class="reference external" href="https://github.com/xkstein/newport-tlb6700/graphs/contributors">https://github.com/xkstein/newport-tlb6700/graphs/contributors</a>.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>See the <a class="reference external" href="https://github.com/xkstein/newport-tlb6700#installation">README</a>
+file included with the distribution.</p>
+</section>
+<section id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">newport-tlb6700</span></code> is built and maintained with <a class="reference external" href="https://scikit-package.github.io/scikit-package/">scikit-package</a>.</p>
+</section>
 <section id="table-of-contents">
 <h2>Table of contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/newport-tlb6700.html">Package API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/newport-tlb6700.html#locating-the-driver">Locating the Driver</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/newport-tlb6700.html#submodules">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/newport_tlb6700.html">Package API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/newport_tlb6700.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/newport_tlb6700.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/newport_tlb6700.html#module">newport_tlb6700.example_submodule module</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="release.html">Release notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="license.html#open-source-license-agreement">OPEN SOURCE LICENSE AGREEMENT</a></li>
 </ul>
@@ -92,30 +118,12 @@
 </ul>
 </div>
 </section>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
-<p>You need to install the Newport Tunable <a class="reference external" href="https://www.newport.com/f/velocity-wide-&amp;-fine-tunable-lasers">laser drivers</a> for this package to work</p>
-<p>To install using <code class="docutils literal notranslate"><span class="pre">pip</span></code> into your environment, type</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">newport</span><span class="o">-</span><span class="n">tlb6700</span>
-</pre></div>
-</div>
-<p>If you prefer to install from sources, after installing the dependencies, obtain the source archive from
-<a class="reference external" href="https://github.com/xkstein/newport-tlb6700/">GitHub</a>. Once installed, <code class="docutils literal notranslate"><span class="pre">cd</span></code> into your <code class="docutils literal notranslate"><span class="pre">newport-tlb6700</span></code> directory
-and run the following</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">.</span>
-</pre></div>
-</div>
-<p>See the <a class="reference external" href="https://github.com/xkstein/newport-tlb6700#installation">README</a>
-file included with the distribution.</p>
-</section>
-<section id="authors">
-<h2>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">newport-tlb6700</span></code> is developed by Jamie, Claude AI. The maintainer for this project is Jamie. For a detailed list of contributors see
-<a class="reference external" href="https://github.com/xkstein/newport-tlb6700/graphs/contributors">https://github.com/xkstein/newport-tlb6700/graphs/contributors</a>.</p>
-</section>
-<section id="acknowledgements">
-<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">newport-tlb6700</span></code> is built and maintained with <a class="reference external" href="https://scikit-package.github.io/scikit-package/">scikit-package</a>.</p>
+<section id="indices">
+<h2>Indices<a class="headerlink" href="#indices" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
 </section>
 </section>
 
@@ -123,7 +131,7 @@ file included with the distribution.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="api/newport-tlb6700.html" class="btn btn-neutral float-right" title="newport-tlb6700 package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api/newport_tlb6700.html" class="btn btn-neutral float-right" title="newport-tlb6700 package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
