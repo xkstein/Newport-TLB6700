@@ -69,7 +69,7 @@ To view the basic usage and available commands, type ::
 TO DO
 ---------------
 
-* Commands can be stacked and sent to the laser, this would speed up certain queries (like asking what wavelength and power are simulateously)
+* Read until (allows for smaller chunks and faster queries)
 * Get on pypi
 * Add example scripts
 
